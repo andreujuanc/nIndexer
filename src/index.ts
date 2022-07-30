@@ -5,6 +5,7 @@ import { connectToPostgress } from "./data/postgress";
 import { startSync } from "./services/sync";
 
 async function main() {
+    console.clear()
     console.log('🟢 STARTING SERVICES')
     await connectToPostgress()
 
