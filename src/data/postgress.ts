@@ -106,7 +106,6 @@ async function multiInsert<T>(tablename: string, columns: (keyof T)[], values: T
     const valuePlaceholder = getPlaceholders(values)
     const query = `INSERT INTO ${tablename} (${columns}) VALUES ${valuePlaceholder}`
 
-    console.log(query)
     await client.query(query, values.flatMap(value => [...getValues(value)]))
 }
 
