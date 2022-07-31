@@ -15,8 +15,13 @@ export async function startSync() {
 
             if (txs.length > 0) {
                 await saveTransactions(txs.map(x => ({
-                    hash: x.transactionHash,
-                    data: x
+                    ...x,
+                    txto: x.to,
+                    txfrom: x.from,
+                    gasUsed: x.gasUsed.toString(),
+                    cumulativeGasUsed: x.cumulativeGasUsed.toString(),
+                    effectiveGasPrice: x.effectiveGasPrice.toString(),
+                    logs: JSON.stringify(x.logs),
                 })))
             }
 

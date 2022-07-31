@@ -8,8 +8,23 @@ CREATE TABLE IF NOT EXISTS raw.blocks (
 );
 
 CREATE TABLE IF NOT EXISTS raw.transactions (
-  id varchar(100) PRIMARY KEY,
-  data JSONB
+  transactionHash varchar(250) PRIMARY KEY,
+  txto varchar(100),
+  txfrom varchar(100),
+  contractAddress varchar(100) NULL,
+  transactionIndex smallint,
+  root varchar(250),
+  gasUsed varchar(250),
+  logsBloom varchar(65000),
+  blockHash varchar(250),
+  logs JSONB,
+  blockNumber bigint,
+  confirmations bigint,
+  cumulativeGasUsed varchar(250),
+  effectiveGasPrice varchar(250),
+  byzantium boolean,
+  type smallint,
+  status smallint
 );
 
 
