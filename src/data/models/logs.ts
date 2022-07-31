@@ -1,3 +1,4 @@
+import { PoolClient } from "pg";
 import { multiInsert } from "../postgress";
 
 export interface Log {
@@ -29,6 +30,6 @@ export const LogFields: (keyof Log)[] = [
     'logIndex'
 ];
 
-export async function saveLogs(logs: Log[]) {
-    await multiInsert('raw.logs', LogFields, logs);
+export async function saveLogs(client: PoolClient, logs: Log[]) {
+    await multiInsert(client, 'raw.logs', LogFields, logs);
 }

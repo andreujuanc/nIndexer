@@ -1,22 +1,27 @@
 import { BigNumber, ethers } from "ethers";
-import { getNextBlock, saveBlock } from "../../data/postgress";
+import { getNextBlock, saveBlock } from "../../data/models/blocks";
 import { saveTransactions } from "../../data/models/transactions";
 import { saveLogs } from "../../data/models/logs";
+import { beginTransaction, commitTransaction, rollbackTransaction } from "../../data/postgress";
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
 
 export async function startSync() {
     while (true) {
+        const client = await beginTransaction()
+
         try {
-            const nextBlock = await getNextBlock()
+
+            const nextBlock = await getNextBlock(client)
             console.log('ℹ️ Syncing block:', nextBlock)
             const block = await getBlockData(nextBlock)
+
             const txs = await Promise.all(block.transactions.slice(0, 2).map(async (hash) =>
                 provider.getTransactionReceipt(hash)
             ))
 
             if (txs.length > 0) {
-                await saveTransactions(txs.map(x => ({
+                await saveTransactions(client, txs.map(x => ({
                     ...x,
                     txto: x.to,
                     txfrom: x.from,
@@ -33,20 +38,25 @@ export async function startSync() {
                 })))
 
                 if (logs.length > 0) {
-                    await saveLogs(logs)
+                    await saveLogs(client, logs)
                 }
             }
 
-            await saveBlock({
+            await saveBlock(client, {
                 number: block.number,
                 data: block
             })
-            //console.log('tx', txs[0])
+
+            await commitTransaction(client)
 
             await new Promise(resolve => setTimeout(resolve, 100))
         } catch (ex) {
+            await rollbackTransaction(client)
             console.error(ex)
             await new Promise(resolve => setTimeout(resolve, 5000))
+        }
+        finally {
+            client.release()
         }
     }
 }

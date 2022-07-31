@@ -1,35 +1,36 @@
-import { Client, Pool } from 'pg'
+import { Pool, PoolClient } from 'pg'
 import { INIT_SCRIPT } from './scripts'
-const client = new Pool()
+const pool = new Pool()
 
 export async function connectToPostgress() {
     //await client.connect()
     // const res = await client.query('SELECT $1::text as message', ['Hello world!'])
     // console.log(res.rows[0].message)
-    const res = await client.query(INIT_SCRIPT) as any
+    const res = await pool.query(INIT_SCRIPT) as any
     console.log('🟢 CONNECTED TO POSTGRESS. DB:', res[res.length - 1].rows)
 }
 
 export async function disconnectFromPostgress() {
-    await client.end()
+    await pool.end()
 }
 
-export async function getNextBlock() {
-    const res = await client.query('SELECT id FROM raw.blocks ORDER BY id DESC LIMIT 1') as any
-    console.log(res.rows)
-    if (res.rows.length > 0) {
-
-        return parseInt(res.rows[0].id) + 1
-    }
-    return parseInt((process.env.BLOCK_START_AT ?? 0).toString())
+export async function beginTransaction() {
+    const client = await pool.connect()
+    await client.query('BEGIN')
+    return client
 }
 
-export async function saveBlock(block: { number: number, data: any }) {
-    await client.query('INSERT INTO raw.blocks (id, data) VALUES ($1, $2)', [block.number, block.data])
+export async function commitTransaction(client: PoolClient){
+    await client.query('COMMIT')
+}
+
+export async function rollbackTransaction(client: PoolClient){
+    await client.query('ROLLBACK')
 }
 
 
-export async function multiInsert<T>(tablename: string, columns: (keyof T)[], values: T[]) {
+
+export async function multiInsert<T>(client: PoolClient, tablename: string, columns: (keyof T)[], values: T[]) {
 
     function getPlaceholders(txs: T[]) {
 
@@ -47,5 +48,5 @@ export async function multiInsert<T>(tablename: string, columns: (keyof T)[], va
     const valuePlaceholder = getPlaceholders(values)
     const query = `INSERT INTO ${tablename} (${columns}) VALUES ${valuePlaceholder}`
     const data = values.flatMap(value => [...getValues(value)])
-    await client.query(query, data)
+    await pool.query(query, data)
 }

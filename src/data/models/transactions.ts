@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { multiInsert } from '../postgress';
 
 type RawTransaction = {
@@ -40,6 +41,6 @@ export const RawTransactionFields: (keyof RawTransaction)[] = [
     'status'
 ];
 
-export async function saveTransactions(txs: RawTransaction[]) {
-    await multiInsert('raw.transactions', RawTransactionFields, txs);
+export async function saveTransactions(client: PoolClient, txs: RawTransaction[]) {
+    await multiInsert(client, 'raw.transactions', RawTransactionFields, txs);
 }
