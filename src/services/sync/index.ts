@@ -11,12 +11,12 @@ export async function startSync() {
         const client = await beginTransaction()
 
         try {
-
+            const current = await provider.getBlockNumber()
             const nextBlock = await getNextBlock(client)
-            console.log('ℹ️ Syncing block:', nextBlock)
+            console.log('ℹ️ Syncing block:', nextBlock, 'of', current, 'out of sync by', current - nextBlock, 'blocks')
             const block = await getBlockData(nextBlock)
 
-            const txs = await Promise.all(block.transactions.slice(0, 2).map(async (hash) =>
+            const txs = await Promise.all(block.transactions.map(async (hash) =>
                 provider.getTransactionReceipt(hash)
             ))
 
@@ -49,7 +49,7 @@ export async function startSync() {
 
             await commitTransaction(client)
 
-            await new Promise(resolve => setTimeout(resolve, 100))
+            //await new Promise(resolve => setTimeout(resolve, 100))
         } catch (ex) {
             await rollbackTransaction(client)
             console.error(ex)
