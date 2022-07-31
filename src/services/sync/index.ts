@@ -4,9 +4,10 @@ import { saveTransactions } from "../../data/models/transactions";
 import { saveLogs } from "../../data/models/logs";
 import { beginTransaction, commitTransaction, rollbackTransaction } from "../../data/postgress";
 
-const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
 
-export async function startSync() {
+
+export async function startSync(chainId: number) {
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, chainId);
     while (true) {
         const client = await beginTransaction()
 
@@ -15,7 +16,7 @@ export async function startSync() {
             const nextBlock = await getNextBlock(client)
             console.log('ℹ️ Syncing block:', nextBlock, 'of', current, 'out of sync by', current - nextBlock, 'blocks')
             
-            //const block = await getBlockData(nextBlock)
+            //const block = await  provider.getBlock(number)
             // const txs = await Promise.all(block.transactions.map(async (hash) =>
             //     provider.getTransactionReceipt(hash)
             // ))
@@ -60,8 +61,4 @@ export async function startSync() {
             client.release()
         }
     }
-}
-
-function getBlockData(number: number): Promise<ethers.providers.Block> {
-    return provider.getBlock(number)
 }

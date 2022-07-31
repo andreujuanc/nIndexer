@@ -8,8 +8,9 @@ async function main() {
     console.clear()
     console.log('🟢 STARTING SERVICES')
     await connectToPostgress()
-
-    await startSync()
+    const chainId = parseInt(process.env.CHAIN_ID ?? '1')
+    console.log('🔗 CHAIN ID:', chainId)
+    await startSync(chainId)
 }
 
 async function exitHandler(options: any, exitCode: number) {
