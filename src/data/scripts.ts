@@ -27,6 +27,25 @@ CREATE TABLE IF NOT EXISTS raw.transactions (
   status smallint
 );
 
+CREATE TABLE IF NOT EXISTS raw.logs (
+  blockNumber bigint,
+  blockHash varchar(250),
+  transactionIndex smallint,
+
+  removed boolean,
+
+  address varchar(100),
+  data TEXT,
+
+  topics JSONB,
+  
+
+  transactionHash varchar(250),
+  logIndex bigint,
+
+  PRIMARY KEY(blockNumber, transactionIndex, logIndex)
+);
+
 
 CREATE TABLE IF NOT EXISTS contracts (
   id varchar(100) PRIMARY KEY,

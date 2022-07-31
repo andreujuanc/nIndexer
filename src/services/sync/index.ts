@@ -1,5 +1,7 @@
 import { BigNumber, ethers } from "ethers";
-import { getNextBlock, saveBlock, saveTransactions } from "../../data/postgress";
+import { getNextBlock, saveBlock } from "../../data/postgress";
+import { saveTransactions } from "../../data/models/transactions";
+import { saveLogs } from "../../data/models/logs";
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
 
@@ -23,6 +25,16 @@ export async function startSync() {
                     effectiveGasPrice: x.effectiveGasPrice.toString(),
                     logs: JSON.stringify(x.logs),
                 })))
+
+                const logs = txs.flatMap(x => x.logs.map(l => ({
+                    ...l,
+                    topics: JSON.stringify(l.topics),
+                    removed: l.removed ?? false
+                })))
+
+                if (logs.length > 0) {
+                    await saveLogs(logs)
+                }
             }
 
             await saveBlock({
