@@ -14,32 +14,33 @@ export async function startSync() {
             const current = await provider.getBlockNumber()
             const nextBlock = await getNextBlock(client)
             console.log('ℹ️ Syncing block:', nextBlock, 'of', current, 'out of sync by', current - nextBlock, 'blocks')
-            const block = await getBlockData(nextBlock)
-
-            const txs = await Promise.all(block.transactions.map(async (hash) =>
-                provider.getTransactionReceipt(hash)
-            ))
-
+            
+            //const block = await getBlockData(nextBlock)
+            // const txs = await Promise.all(block.transactions.map(async (hash) =>
+            //     provider.getTransactionReceipt(hash)
+            // ))
+            const block = await provider.getBlockWithTransactions(nextBlock)
+            const txs = block.transactions
             if (txs.length > 0) {
-                await saveTransactions(client, txs.map(x => ({
-                    ...x,
-                    txto: x.to,
-                    txfrom: x.from,
-                    gasUsed: x.gasUsed.toString(),
-                    cumulativeGasUsed: x.cumulativeGasUsed.toString(),
-                    effectiveGasPrice: x.effectiveGasPrice.toString(),
-                    logs: JSON.stringify(x.logs),
-                })))
+                // await saveTransactions(client, txs.map(x => ({
+                //     ...x,
+                //     txto: x.to,
+                //     txfrom: x.from,
+                //     gasUsed: x.gasUsed.toString(),
+                //     cumulativeGasUsed: x.cumulativeGasUsed.toString(),
+                //     effectiveGasPrice: x.effectiveGasPrice.toString(),
+                //     logs: JSON.stringify(x.logs),
+                // })))
 
-                const logs = txs.flatMap(x => x.logs.map(l => ({
-                    ...l,
-                    topics: JSON.stringify(l.topics),
-                    removed: l.removed ?? false
-                })))
+                // const logs = txs.flatMap(x => x.logs.map(l => ({
+                //     ...l,
+                //     topics: JSON.stringify(l.topics),
+                //     removed: l.removed ?? false
+                // })))
 
-                if (logs.length > 0) {
-                    await saveLogs(client, logs)
-                }
+                // if (logs.length > 0) {
+                //     await saveLogs(client, logs)
+                // }
             }
 
             await saveBlock(client, {
