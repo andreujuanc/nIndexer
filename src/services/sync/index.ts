@@ -7,42 +7,52 @@ import { beginTransaction, commitTransaction, rollbackTransaction } from "../../
 
 
 export async function startSync(chainId: number) {
-    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, chainId);
+    const provider = new ethers.providers.StaticJsonRpcProvider(process.env.RPC_URL, chainId)
     while (true) {
         const client = await beginTransaction()
 
         try {
-            const current = await provider.getBlockNumber()
+
             const nextBlock = await getNextBlock(client)
-            console.log('ℹ️ Syncing block:', nextBlock, 'of', current, 'out of sync by', current - nextBlock, 'blocks')
-            
-            //const block = await  provider.getBlock(number)
+            if (nextBlock % 100 === 0) {
+                const current = await provider.getBlockNumber()
+                console.log('ℹ️ Syncing block:', nextBlock, 'of', current, 'out of sync by', current - nextBlock, 'blocks')
+            }
+            else
+                console.log('ℹ️ Syncing block:', nextBlock)
+            const block = await provider.getBlock(nextBlock)
             // const txs = await Promise.all(block.transactions.map(async (hash) =>
             //     provider.getTransactionReceipt(hash)
             // ))
-            const block = await provider.getBlockWithTransactions(nextBlock)
-            const txs = block.transactions
-            if (txs.length > 0) {
-                // await saveTransactions(client, txs.map(x => ({
-                //     ...x,
-                //     txto: x.to,
-                //     txfrom: x.from,
-                //     gasUsed: x.gasUsed.toString(),
-                //     cumulativeGasUsed: x.cumulativeGasUsed.toString(),
-                //     effectiveGasPrice: x.effectiveGasPrice.toString(),
-                //     logs: JSON.stringify(x.logs),
-                // })))
+            // const block = await provider.getBlockWithTransactions(nextBlock)
+            // const txs = block.transactions
+            const logs = await provider.getLogs({ fromBlock: nextBlock, toBlock: nextBlock })
 
-                // const logs = txs.flatMap(x => x.logs.map(l => ({
-                //     ...l,
-                //     topics: JSON.stringify(l.topics),
-                //     removed: l.removed ?? false
-                // })))
 
-                // if (logs.length > 0) {
-                //     await saveLogs(client, logs)
-                // }
+            // if (txs.length > 0) {
+            // await saveTransactions(client, txs.map(x => ({
+            //     ...x,
+            //     txto: x.to,
+            //     txfrom: x.from,
+            //     gasUsed: x.gasUsed.toString(),
+            //     cumulativeGasUsed: x.cumulativeGasUsed.toString(),
+            //     effectiveGasPrice: x.effectiveGasPrice.toString(),
+            // })))
+
+            // const logs = txs.flatMap(x => x.logs.map(l => ({
+            //     ...l,
+            //     topics: JSON.stringify(l.topics),
+            //     removed: l.removed ?? false
+            // })))
+
+            if (logs.length > 0) {
+                await saveLogs(client, logs.flatMap(log => ({
+                    ...log,
+                    topics: JSON.stringify(log.topics),
+                    removed: log.removed ?? false
+                })))
             }
+            //}
 
             await saveBlock(client, {
                 number: block.number,

@@ -31,5 +31,10 @@ export const LogFields: (keyof Log)[] = [
 ];
 
 export async function saveLogs(client: PoolClient, logs: Log[]) {
-    await multiInsert(client, 'raw.logs', LogFields, logs);
+    const size = 1000
+    const chunks = Math.ceil(logs.length / size)
+
+    await Promise.all([...new Array(chunks)].map((_, i) =>
+        multiInsert(client, 'raw.logs', LogFields, logs.slice(i * size, (i * size) + size))
+    ))
 }

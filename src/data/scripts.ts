@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS raw.transactions (
   gasUsed varchar(250),
   logsBloom varchar(65000),
   blockHash varchar(250),
-  logs JSONB,
   blockNumber bigint,
   confirmations bigint,
   cumulativeGasUsed varchar(250),

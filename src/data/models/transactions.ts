@@ -11,7 +11,6 @@ type RawTransaction = {
     logsBloom: string;
     blockHash: string;
     transactionHash: string;
-    logs: string; //Array<Log>,
     blockNumber: number;
     confirmations: number;
     cumulativeGasUsed: string;
@@ -31,7 +30,6 @@ export const RawTransactionFields: (keyof RawTransaction)[] = [
     'logsBloom',
     'blockHash',
     'transactionHash',
-    'logs',
     'blockNumber',
     'confirmations',
     'cumulativeGasUsed',
