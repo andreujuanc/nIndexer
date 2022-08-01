@@ -1,5 +1,5 @@
 import { Pool, PoolClient } from 'pg'
-import { INIT_SCRIPT } from './scripts'
+import { INIT_SCRIPT } from './createTables'
 const pool = new Pool()
 
 export async function connectToPostgress() {
