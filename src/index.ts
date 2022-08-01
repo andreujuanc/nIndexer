@@ -3,13 +3,18 @@ config()
 
 import { connectToPostgress } from "./data/postgress";
 import { startSync } from "./services/sync";
+import { initDB } from './services/sync/init';
 
 async function main() {
     console.clear()
+    
     console.log('🟢 STARTING SERVICES')
     await connectToPostgress()
+    
     const chainId = parseInt(process.env.CHAIN_ID ?? '1')
     console.log('🔗 CHAIN ID:', chainId)
+
+    await initDB(chainId)
     await startSync(chainId)
 }
 

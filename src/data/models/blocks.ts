@@ -13,3 +13,11 @@ export async function getNextBlock(client: PoolClient) {
 export async function saveBlock(client: PoolClient, block: { number: number; data: any; }) {
     await client.query('INSERT INTO raw.blocks (id, data) VALUES ($1, $2)', [block.number, block.data]);
 }
+
+
+export async function getEarliestGapInBlocks(client: PoolClient) {
+    const res = await client.query('SELECT id FROM raw.blocks ORDER BY id ASC LIMIT 1') as any;
+    if (res.rows.length > 0)
+        return parseInt(res.rows[0].id)
+    return null
+}
