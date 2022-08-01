@@ -7,7 +7,8 @@ import { PoolClient } from "pg";
 export async function syncBlock(client: PoolClient, provider: ethers.providers.Provider, nextBlock: number) {
     for (let i = 0; i < 3; i++) {
         try {
-            await _syncBlock(provider, nextBlock, client);
+            //await _syncBlock(provider, nextBlock, client);
+            await _syncLogs(provider, nextBlock, client);
             break;
         } catch (ex) {
             if (i === 2) {
@@ -33,6 +34,7 @@ async function _syncBlock(provider: ethers.providers.Provider, nextBlock: number
             cumulativeGasUsed: x.cumulativeGasUsed.toString(),
             effectiveGasPrice: x.effectiveGasPrice.toString(),
         })));
+
         const logs = txs.flatMap(x => x.logs.map(l => ({
             ...l,
             topics: JSON.stringify(l.topics),
@@ -52,3 +54,18 @@ async function _syncBlock(provider: ethers.providers.Provider, nextBlock: number
     });
 }
 
+async function _syncLogs(provider: ethers.providers.Provider, nextBlock: number, client: PoolClient) {
+    const block = await provider.getBlock(nextBlock);
+    const logs = await provider.getLogs({ fromBlock: nextBlock, toBlock: nextBlock });
+    if (logs.length > 0) {
+        await saveLogs(client, logs.flatMap(log => ({
+            ...log,
+            topics: typeof log.topics == 'string' ? log.topics : JSON.stringify(log.topics),
+            removed: log.removed ?? false
+        })));
+    }
+    await saveBlock(client, {
+        number: block.number,
+        data: block
+    });
+}

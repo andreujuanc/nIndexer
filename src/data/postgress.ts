@@ -46,7 +46,7 @@ export async function multiInsert<T>(client: PoolClient, tablename: string, colu
     }
 
     const valuePlaceholder = getPlaceholders(values)
-    const query = `INSERT INTO ${tablename} (${columns}) VALUES ${valuePlaceholder}`
+    const query = `INSERT INTO ${tablename} (${columns}) VALUES ${valuePlaceholder} ON CONFLICT DO NOTHING`
     const data = values.flatMap(value => [...getValues(value)])
     await pool.query(query, data)
 }

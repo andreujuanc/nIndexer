@@ -12,12 +12,12 @@ export async function initDB(chainId: number) {
         try {
             const firstBlock = await getEarliestGapInBlocks(client)
             const nextBlock = await getNextBlock(client)
-            const batchSize = 2
+            const batchSize = 80
             let startNumber = 0
             if (firstBlock === null) {
                 startNumber = parseInt(process.env.BLOCK_START_AT ?? "0")
             }
-            else if (firstBlock > 0) {
+            else if (firstBlock > 10_000_000) {
                 startNumber = firstBlock - batchSize
             }
             else if (nextBlock < current * 0.8) {
