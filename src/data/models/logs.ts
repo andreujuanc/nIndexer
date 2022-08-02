@@ -11,7 +11,13 @@ export interface Log {
     address: string;
     data: string;
 
-    topics: string//Array<string>;
+    topic0: string;
+    topic1: string;
+    topic2: string;
+    topic3: string;
+    topic4: string;
+    topic5: string;
+    topic6: string;
 
     transactionHash: string;
     logIndex: number;
@@ -25,7 +31,13 @@ export const LogFields: (keyof Log)[] = [
     'removed',
     'address',
     'data',
-    'topics',
+    'topic0',
+    'topic1',
+    'topic2',
+    'topic3',
+    'topic4',
+    'topic5',
+    'topic6',
     'transactionHash',
     'logIndex'
 ];

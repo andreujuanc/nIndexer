@@ -14,7 +14,7 @@ async function main() {
     const chainId = parseInt(process.env.CHAIN_ID ?? '1')
     console.log('🔗 CHAIN ID:', chainId)
 
-    await initDB(chainId)
+    //await initDB(chainId)
     await startSync(chainId)
 }
 

@@ -36,14 +36,29 @@ CREATE TABLE IF NOT EXISTS raw.logs (
   address varchar(100),
   data TEXT,
 
-  topics JSONB,
+  topic0 varchar(250) NULL,
+  topic1 varchar(250) NULL,
+  topic2 varchar(250) NULL,
+  topic3 varchar(250) NULL,
+  topic4 varchar(250) NULL,
+  topic5 varchar(250) NULL,
+  topic6 varchar(250) NULL,
   
-
   transactionHash varchar(250),
   logIndex bigint,
 
+
   PRIMARY KEY(blockNumber, transactionIndex, logIndex)
 );
+
+CREATE INDEX IF NOT EXISTS  ix_topic0 ON raw.logs (topic0);
+CREATE INDEX IF NOT EXISTS  ix_topic1 ON raw.logs (topic1);
+CREATE INDEX IF NOT EXISTS  ix_topic2 ON raw.logs (topic2);
+CREATE INDEX IF NOT EXISTS  ix_topic3 ON raw.logs (topic3);
+CREATE INDEX IF NOT EXISTS  ix_topic4 ON raw.logs (topic4);
+CREATE INDEX IF NOT EXISTS  ix_topic5 ON raw.logs (topic5);
+CREATE INDEX IF NOT EXISTS  ix_topic6 ON raw.logs (topic6);
+
 
 
 CREATE TABLE IF NOT EXISTS contracts (

@@ -40,11 +40,13 @@ async function _syncBlock(provider: ethers.providers.Provider, nextBlock: number
             topics: JSON.stringify(l.topics),
             removed: l.removed ?? false
         })));
+
+
         if (logs.length > 0) {
             await saveLogs(client, logs.flatMap(log => ({
                 ...log,
-                topics: typeof log.topics == 'string' ? log.topics : JSON.stringify(log.topics),
-                removed: log.removed ?? false
+                ...getTopics(log.topics),
+                removed: log.removed ?? false,
             })));
         }
     }
@@ -60,7 +62,7 @@ async function _syncLogs(provider: ethers.providers.Provider, nextBlock: number,
     if (logs.length > 0) {
         await saveLogs(client, logs.flatMap(log => ({
             ...log,
-            topics: typeof log.topics == 'string' ? log.topics : JSON.stringify(log.topics),
+            ...getTopics(log.topics),
             removed: log.removed ?? false
         })));
     }
@@ -68,4 +70,26 @@ async function _syncLogs(provider: ethers.providers.Provider, nextBlock: number,
         number: block.number,
         data: block
     });
+}
+
+function getTopics(topics: any) {
+    const topicArray = () => {
+        if (typeof topics == 'string')
+            return JSON.parse(topics)
+        else if (Array.isArray(topics))
+            return topics
+        else
+            throw new Error('Invalid topics type')
+    }
+
+    const array = topicArray()
+    return {
+        topic0: array[0],
+        topic1: array[1],
+        topic2: array[2],
+        topic3: array[3],
+        topic4: array[4],
+        topic5: array[5],
+        topic6: array[6],
+    }
 }
